@@ -1,0 +1,3 @@
+@import "tailwindcss";
+:root{font-family:Inter,"Segoe UI",Arial,sans-serif;color:#e9eef2;background:#080f1b;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;min-width:280px}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer;touch-action:manipulation;color:inherit}a{color:inherit;text-decoration:none}button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid #65e0dc;outline-offset:5px}::selection{background:#65e0dc;color:#080f1b}p,h1,h2{margin:0}
