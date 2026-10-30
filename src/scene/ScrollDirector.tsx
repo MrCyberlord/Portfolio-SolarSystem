@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { Group, MathUtils, ShaderMaterial } from 'three'
 import { compositions } from './config'
 import { SYSTEM_SCALE } from './solarConfig'
+import { horizontalAnchor } from './horizontalAnchor'
 import type { ScrollSignal } from '../hooks/usePortfolioScroll'
 
 export function ScrollDirector({ sculpture, nebula, signal, time, mobile, ambientMotion, reducedMotion }: { sculpture: RefObject<Group | null>; nebula: RefObject<ShaderMaterial | null>; signal: ScrollSignal; time: RefObject<number>; mobile: boolean; ambientMotion: boolean; reducedMotion: boolean }) {
@@ -56,20 +57,21 @@ export function ScrollDirector({ sculpture, nebula, signal, time, mobile, ambien
     // The camera, Canvas, and background retain their existing scale.
     const roomToEnlarge = mobile ? 1 : MathUtils.smoothstep(aspect, 1.25, 1.65)
     const homeWeight = index === 0 ? (1 - t) * roomToEnlarge : 0
-    const viewWidth = Math.hypot(distance, elevation) * tanHalfFov * aspect * 2
     const homeScale = 1 + (mobile ? 0.15 : 0.17) * homeWeight
-    const homeX = mobile ? 0 : viewWidth * 0.02 * homeWeight
     // Preserve Home exactly. After entering Projects, keep a 14% smaller
     // apparent size relative to Home, compensating for each camera's distance.
-    const contentWeight = MathUtils.smoothstep(progress, 1, 1.01)
+    const contentWeight = MathUtils.smoothstep(progress, 1, 1.2)
     const origin = compositions[0]
     const originDistance = Math.max(origin.distance * (mobile ? 1.1 : 1), 3.85 / (tanHalfFov * aspect * (mobile ? 0.9 : 0.6)))
     const originElevation = origin.elevation * originDistance / origin.distance
     const contentScale = (1 + (mobile ? 0.15 : 0.17) * roomToEnlarge) * 0.86 * Math.hypot(distance, elevation) / Math.hypot(originDistance, originElevation)
     root.scale.setScalar(SYSTEM_SCALE * MathUtils.lerp(homeScale, contentScale, contentWeight))
-    root.position.setX(MathUtils.lerp(homeX, mobile ? 0 : viewWidth * 0.06, contentWeight))
     camera.position.set(-offset + (mobile ? 0 : 0.5), elevation, distance)
     camera.lookAt(-offset, mix('targetY'), 0)
+    camera.updateMatrixWorld()
+    // One horizontal anchor for every section. Never blend two X positions
+    // at Home/Projects: only the scale and viewing angle may evolve.
+    root.position.setX(horizontalAnchor(camera, mobile ? 0 : 0.42))
   })
   return null
 }
